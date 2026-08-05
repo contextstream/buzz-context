@@ -4,8 +4,12 @@ Target length: 75 seconds. This is a continuity proof, not a feature tour.
 
 ## Before recording
 
-- Create one ContextStream project with a small repository, a product
-  requirement, one architecture decision, and one known constraint.
+- Copy [demo/fixture](demo/fixture) into a disposable working directory and
+  initialize it as a fresh Git repository. The baseline deliberately verifies
+  token signatures without enforcing the ContextStream-backed expiry policy.
+- Create one ContextStream project for that fixture with a product requirement,
+  one architecture decision, and one known constraint. Label all records as
+  synthetic demo knowledge, not production guidance.
 - Start a Claude Code Buzz agent and a Codex Buzz agent through
   [run-agent.sh](run-agent.sh), each with a distinct Buzz identity and the same
   ContextStream project.
