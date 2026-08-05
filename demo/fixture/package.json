@@ -1,0 +1,8 @@
+{
+  "name": "contextstream-buzz-invitation-fixture",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  }
+}

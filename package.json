@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Shared ContextStream project context for agents in Buzz",
   "scripts": {
-    "test": "node --test reference.test.mjs",
+    "test": "node --test reference.test.mjs demo/fixture/test/invitations.test.mjs",
     "smoke": "node smoke-contextstream.mjs"
   },
   "engines": {

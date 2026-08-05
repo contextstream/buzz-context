@@ -179,6 +179,8 @@ binary execution. The compatibility record is in
 - [smoke-contextstream.mjs](smoke-contextstream.mjs) — real stdio MCP and
   hosted-grounding smoke test
 - [demo-script.md](demo-script.md) — reproducible 60–90 second flagship demo
+- [demo/fixture](demo/fixture) — disposable signed-invitation repository used
+  for the Claude-to-Codex continuity proof
 - [community-runbook.md](community-runbook.md) — public ContextStream Builders
   community launch checklist
 - [block-outreach.md](block-outreach.md) — concise proof-first outreach and
