@@ -1,0 +1,36 @@
+{
+  "verified_at": "2026-08-05",
+  "buzz": {
+    "repository": "https://github.com/block/buzz",
+    "commit": "06b60e682d5dd78e6cdcb8e93fe96c7ec4391e2a",
+    "license": "Apache-2.0",
+    "harness": "buzz-acp",
+    "mcp_transport": "stdio",
+    "configuration_env": "BUZZ_ACP_MCP_COMMAND",
+    "acp_method": "session/new",
+    "acp_field": "mcpServers",
+    "supported_harnesses": [
+      "goose",
+      "codex-acp",
+      "claude-agent-acp"
+    ],
+    "desktop_per_agent_mcp_override": false,
+    "desktop_limitation": "Create/update requests accept mcpCommand only for wire compatibility; runtime catalog metadata determines the effective MCP command at spawn time."
+  },
+  "contextstream": {
+    "command": "contextstream-mcp",
+    "tested_version": "0.5.85",
+    "hosted_gateway": "https://mcp.contextstream.io/mcp?default_context_mode=fast",
+    "authentication": [
+      "contextstream-mcp setup credential store",
+      "CONTEXTSTREAM_API_KEY secret for headless deployments"
+    ]
+  },
+  "proof": {
+    "buzz_tests": [
+      "cargo test -p buzz-acp mcp_command",
+      "cargo test -p buzz-acp session_new_mcp_server_has_required_fields"
+    ],
+    "contextstream_test": "node apps/buzz/smoke-contextstream.mjs --project /absolute/project/path"
+  }
+}

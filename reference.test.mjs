@@ -1,0 +1,66 @@
+import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import test from "node:test";
+
+const root = new URL("./", import.meta.url);
+
+async function read(name) {
+  return readFile(new URL(name, root), "utf8");
+}
+
+test("launcher supplies ContextStream through the verified Buzz seam", async () => {
+  const launcher = await read("run-agent.sh");
+  assert.match(launcher, /BUZZ_ACP_MCP_COMMAND/);
+  assert.match(launcher, /contextstream-mcp/);
+  assert.match(launcher, /--system-prompt-file/);
+  assert.match(launcher, /BUZZ_ACP_RESPOND_TO:-owner-only/);
+});
+
+test("teaching includes brief, approval, handoff, and conditional attribution", async () => {
+  const teaching = await read("agent-instructions.md");
+  assert.match(teaching, /Brief before substantial work/);
+  assert.match(teaching, /Wait for an authorized human to approve/);
+  assert.match(teaching, /entity\(kind="handoff", action="create"/);
+  assert.match(
+    teaching,
+    /Omit the footer when ContextStream did\s+not materially contribute/,
+  );
+});
+
+test("compatibility record pins the contract that was actually tested", async () => {
+  const compatibility = JSON.parse(await read("compatibility.json"));
+  assert.equal(compatibility.buzz.configuration_env, "BUZZ_ACP_MCP_COMMAND");
+  assert.equal(compatibility.buzz.acp_field, "mcpServers");
+  assert.equal(compatibility.buzz.desktop_per_agent_mcp_override, false);
+  assert.match(compatibility.buzz.commit, /^[0-9a-f]{40}$/);
+});
+
+test("production and smoke clients remain separable for connector metrics", async () => {
+  const teaching = await read("agent-instructions.md");
+  const smoke = await read("smoke-contextstream.mjs");
+  const measurement = await read("measurement.md");
+
+  assert.match(teaching, /client_name="buzz-claude"/);
+  assert.match(smoke, /client_name: `buzz-smoke-\$\{options\.actor\}`/);
+  assert.match(measurement, /at least two different agent harnesses/i);
+  assert.match(measurement, /raw MCP requests/i);
+});
+
+test("upstream contribution stays small and preserves the product boundary", async () => {
+  const upstream = await read("upstream-doc.md");
+
+  assert.match(upstream, /BUZZ_ACP_MCP_COMMAND/);
+  assert.match(upstream, /session\/new\.mcpServers/);
+  assert.match(upstream, /without replacing Buzz's event history/);
+  assert.doesNotMatch(upstream, /install ContextStream as a Buzz dependency/i);
+});
+
+test("examples contain no live-looking ContextStream or Buzz secrets", async () => {
+  const files = [
+    await read("README.md"),
+    await read("buzz-acp.env.example"),
+    await read("demo-script.md"),
+  ].join("\n");
+  assert.doesNotMatch(files, /cs_(live|test)_[A-Za-z0-9]{16,}/);
+  assert.doesNotMatch(files, /nsec1[023456789acdefghjklmnpqrstuvwxyz]{24,}/);
+});
