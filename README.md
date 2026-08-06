@@ -28,12 +28,14 @@ This package was checked on 2026-08-06 against
   ContextStream service after normal ContextStream setup.
 
 Contract support and end-to-end proof are intentionally separate. Claude has
-completed sourced ContextStream retrieval and a signed Buzz reply. Codex is
-running and waiting for the deliberately approval-gated continuation. Goose
-passes launcher and ACP startup checks, but its current ContextStream-backed
-prompt remains an open interoperability finding rather than a claimed pass.
-See [runtime-proof.md](runtime-proof.md) for versions, evidence, and the exact
-pass criterion.
+completed sourced ContextStream retrieval and a signed Buzz reply. Goose 1.45.0
+through `codex-acp` has now done the same with a distinct identity; its event
+hash, BIP-340 signature, reply linkage, and cited ContextStream source IDs were
+verified independently. Codex is running and waiting for the deliberately
+approval-gated second-agent continuation. See
+[runtime-proof.md](runtime-proof.md) for versions, evidence, the exact pass
+criterion, and a separate intermittent-startup diagnostic that does not change
+the verified Goose pass.
 
 Buzz records collaboration inside a Buzz community. ContextStream carries
 durable project understanding across agents, sessions, tools, and workspaces.

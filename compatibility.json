@@ -64,10 +64,19 @@
         "launcher_preflight": "passed",
         "buzz_acp_startup": "passed",
         "canonical_contextstream_process_started": "passed",
-        "sourced_contextstream_retrieval": "not_yet_proven",
-        "signed_buzz_reply": "not_yet_proven",
-        "observed_stop": "An explicit Buzz mention reached Goose and Goose started the canonical ContextStream MCP process in the selected project directory, but the session remained in extension initialization and emitted no signed reply during the bounded proof run.",
-        "claim_policy": "Do not describe Goose end-to-end retrieval as verified until a signed reply satisfies proof.pass_standard."
+        "canonical_contextstream_mcp": "passed",
+        "sourced_contextstream_retrieval": "passed",
+        "signed_buzz_reply": "passed",
+        "passing_provider": "codex-acp via @agentclientprotocol/codex-acp 1.1.9",
+        "prompt_event_id": "7cd2bb8559f97c3039ad1b4b7b18f3d29b27559942d97b86d208ee287d8d0849",
+        "reply_event_id": "be9a51d597dc1514c3e93604f3f879fb1f5c6a3aadcdc3a16d9b2dc471f96401",
+        "retrieved_source_ids": [
+          "31a6b6f7-099e-404f-b2e8-899d314c188d",
+          "2fbc4197-de18-43e6-8d23-1e5f25e53fc9",
+          "d1ff8fcc-cf4e-4478-96e9-e80edc1f1450"
+        ],
+        "event_verification": "Computed event hash matches the event ID, BIP-340 signature verifies, author matches the distinct Goose identity, and the reply tag references prompt_event_id.",
+        "diagnostic_note": "Separate later full-catalog and reduced-catalog runs did not finish within their observation windows. A complete 110,594-byte tools/list response was valid, and reducing it to 47,345 bytes did not make that later run complete; current evidence does not support a simple tool-list-size incompatibility."
       }
     }
   }

@@ -61,11 +61,17 @@ test("runtime proof never conflates process startup with sourced retrieval", asy
   assert.equal(matrix.claude.sourced_contextstream_retrieval, "passed");
   assert.equal(matrix.claude.signed_buzz_reply, "passed");
   assert.equal(matrix.codex.cross_agent_continuation, "pending_explicit_human_approval");
-  assert.equal(matrix.goose.sourced_contextstream_retrieval, "not_yet_proven");
-  assert.equal(matrix.goose.signed_buzz_reply, "not_yet_proven");
+  assert.equal(matrix.goose.sourced_contextstream_retrieval, "passed");
+  assert.equal(matrix.goose.signed_buzz_reply, "passed");
+  assert.match(matrix.goose.reply_event_id, /^[0-9a-f]{64}$/);
+  assert.match(matrix.goose.event_verification, /BIP-340 signature verifies/);
   assert.match(compatibility.proof.pass_standard, /signed Buzz reply/);
   assert.match(ledger, /Process startup.*not retrieval proof/is);
-  assert.match(ledger, /open compatibility finding/i);
+  assert.match(ledger, /The stored Nostr event was independently checked/i);
+  assert.match(
+    ledger,
+    /does not\s+support a simple tool-list-size incompatibility/i,
+  );
 });
 
 test("production and smoke clients remain separable for connector metrics", async () => {
