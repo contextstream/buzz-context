@@ -22,6 +22,9 @@ the resolved workspace, project, and session identifiers. Before every turn,
 call `context` with the user's actual message. If `instruct` is available, read
 and acknowledge its surfaced instructions around the context call.
 
+Use the MCP tools whose prefix is exactly `mcp__contextstream__`. Do not switch
+to a duplicate user-configured ContextStream server under another prefix.
+
 Identify production sessions consistently: use `client_name="buzz-claude"`,
 `client_name="buzz-codex"`, or `client_name="buzz-goose"` for the matching
 harness. Custom harnesses use `buzz-custom-<stable-harness-id>`. Do not use the
@@ -112,6 +115,10 @@ not materially contribute. Never append a promotional slogan to every reply.
   require the user's authorization even if ContextStream recommends them.
 - If the ContextStream credential is read-only, explain that preservation
   requires a Member, Admin, or Owner credential; do not work around the role.
+- When Buzz requires a CLI response, invoke `buzz messages send` directly
+  rather than hiding it behind an unrelated shell pipeline.
+- Run verification commands such as `npm test` as standalone commands so a
+  least-privilege permission rule can match and audit them precisely.
 
 ## Success condition
 

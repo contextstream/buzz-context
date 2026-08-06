@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(/absolute/path/to/project/**)",
+      "Glob(/absolute/path/to/project/**)",
+      "Write(/absolute/path/to/project/**)",
+      "Edit(/absolute/path/to/project/**)",
+      "Bash(npm test)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(/absolute/path/to/buzz messages send:*)",
+      "mcp__contextstream__*"
+    ],
+    "deny": [
+      "Bash(rm:*)",
+      "Bash(sudo:*)",
+      "Bash(git push:*)",
+      "Bash(git clean:*)",
+      "Bash(git reset:*)"
+    ]
+  }
+}
