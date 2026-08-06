@@ -1,5 +1,5 @@
 {
-  "verified_at": "2026-08-05",
+  "verified_at": "2026-08-06",
   "buzz": {
     "repository": "https://github.com/block/buzz",
     "commit": "06b60e682d5dd78e6cdcb8e93fe96c7ec4391e2a",
@@ -17,6 +17,7 @@
       "codex-acp",
       "claude-agent-acp"
     ],
+    "supported_harnesses_scope": "Buzz configuration and ACP startup support. End-to-end ContextStream retrieval proof is tracked separately in proof.runtime_matrix and runtime-proof.md.",
     "desktop_per_agent_mcp_override": false,
     "desktop_limitation": "Create/update requests accept mcpCommand only for wire compatibility; runtime catalog metadata determines the effective MCP command at spawn time.",
     "claude_headless_default": "dontAsk denies operations that require an interactive permission prompt; read/write work needs an explicitly reviewed project allowlist plus acceptEdits"
@@ -35,6 +36,39 @@
       "cargo test -p buzz-acp mcp_command",
       "cargo test -p buzz-acp session_new_mcp_server_has_required_fields"
     ],
-    "contextstream_test": "node apps/buzz/smoke-contextstream.mjs --project /absolute/project/path"
+    "contextstream_test": "node apps/buzz/smoke-contextstream.mjs --project /absolute/project/path",
+    "pass_standard": "A runtime is end-to-end verified only after a distinct Buzz identity receives an explicit mention, materially retrieves from the attached ContextStream project, and emits a signed Buzz reply. Process startup, online presence, or MCP child-process creation alone do not pass.",
+    "runtime_matrix": {
+      "claude": {
+        "runtime": "Claude Code 2.1.221 via @agentclientprotocol/claude-agent-acp 0.65.0",
+        "buzz_acp_startup": "passed",
+        "canonical_contextstream_mcp": "passed",
+        "sourced_contextstream_retrieval": "passed",
+        "signed_buzz_reply": "passed",
+        "fixture_tests": "5/5 passed",
+        "reply_event_id": "5a7dc066781234a012ef8efe406e29fbb62a18b6949f003ad3fb9a377053e53e"
+      },
+      "codex": {
+        "runtime": "Codex CLI 0.146.1 via @agentclientprotocol/codex-acp 1.1.9",
+        "buzz_acp_startup": "passed",
+        "canonical_contextstream_mcp": "passed",
+        "cross_agent_continuation": "pending_explicit_human_approval",
+        "status_note": "The second-agent continuation remains intentionally unexecuted until a human approves the proposed durable requirement change."
+      },
+      "goose": {
+        "runtime": "goose 1.45.0",
+        "providers_tested": [
+          "claude-acp via @agentclientprotocol/claude-agent-acp 0.65.0",
+          "codex-acp via @agentclientprotocol/codex-acp 1.1.9"
+        ],
+        "launcher_preflight": "passed",
+        "buzz_acp_startup": "passed",
+        "canonical_contextstream_process_started": "passed",
+        "sourced_contextstream_retrieval": "not_yet_proven",
+        "signed_buzz_reply": "not_yet_proven",
+        "observed_stop": "An explicit Buzz mention reached Goose and Goose started the canonical ContextStream MCP process in the selected project directory, but the session remained in extension initialization and emitted no signed reply during the bounded proof run.",
+        "claim_policy": "Do not describe Goose end-to-end retrieval as verified until a signed reply satisfies proof.pass_standard."
+      }
+    }
   }
 }
