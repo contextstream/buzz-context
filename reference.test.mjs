@@ -73,12 +73,22 @@ test("upstream contribution stays small and preserves the product boundary", asy
   assert.doesNotMatch(upstream, /install ContextStream as a Buzz dependency/i);
 });
 
+test("community runbook requires a real public relay and operator evidence", async () => {
+  const runbook = await read("community-runbook.md");
+  assert.match(runbook, /one-click Railway/);
+  assert.match(runbook, /production\s+\[Compose bundle\]/);
+  assert.match(runbook, /\/\_liveness/);
+  assert.match(runbook, /working `wss:\/\//);
+  assert.match(runbook, /tested backup and credential-rotation procedure/);
+});
+
 test("examples contain no live-looking ContextStream or Buzz secrets", async () => {
   const files = [
     await read("README.md"),
     await read("buzz-acp.env.example"),
     await read("demo-script.md"),
     await read("claude-settings.local.example.json"),
+    await read("community-runbook.md"),
   ].join("\n");
   assert.doesNotMatch(files, /cs_(live|test)_[A-Za-z0-9]{16,}/);
   assert.doesNotMatch(files, /nsec1[023456789acdefghjklmnpqrstuvwxyz]{24,}/);
