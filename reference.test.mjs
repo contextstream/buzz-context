@@ -12,6 +12,8 @@ test("launcher supplies ContextStream through the verified Buzz seam", async () 
   const launcher = await read("run-agent.sh");
   assert.match(launcher, /BUZZ_ACP_MCP_COMMAND/);
   assert.match(launcher, /contextstream-mcp/);
+  assert.match(launcher, /CONTEXTSTREAM_MCP_ALIAS/);
+  assert.match(launcher, /BUZZ_ACP_MCP_NAME/);
   assert.match(launcher, /--system-prompt-file/);
   assert.match(launcher, /BUZZ_ACP_RESPOND_TO:-owner-only/);
 });
@@ -19,6 +21,7 @@ test("launcher supplies ContextStream through the verified Buzz seam", async () 
 test("teaching includes brief, approval, handoff, and conditional attribution", async () => {
   const teaching = await read("agent-instructions.md");
   assert.match(teaching, /Brief before substantial work/);
+  assert.match(teaching, /mcp__contextstream__/);
   assert.match(teaching, /Wait for an authorized human to approve/);
   assert.match(teaching, /entity\(kind="handoff", action="create"/);
   assert.match(
@@ -27,9 +30,24 @@ test("teaching includes brief, approval, handoff, and conditional attribution", 
   );
 });
 
+test("Claude headless policy is explicit and least-privilege by default", async () => {
+  const settings = JSON.parse(await read("claude-settings.local.example.json"));
+  const envExample = await read("buzz-acp.env.example");
+  const allowed = settings.permissions.allow.join("\n");
+  const denied = settings.permissions.deny.join("\n");
+
+  assert.match(envExample, /BUZZ_ACP_PERMISSION_MODE=dont-ask/);
+  assert.match(allowed, /mcp__contextstream__/);
+  assert.match(allowed, /\/absolute\/path\/to\/buzz messages send/);
+  assert.doesNotMatch(allowed, /\*buzz messages send/);
+  assert.match(denied, /git reset/);
+  assert.match(denied, /rm:/);
+});
+
 test("compatibility record pins the contract that was actually tested", async () => {
   const compatibility = JSON.parse(await read("compatibility.json"));
   assert.equal(compatibility.buzz.configuration_env, "BUZZ_ACP_MCP_COMMAND");
+  assert.equal(compatibility.buzz.canonical_contextstream_server_name, "contextstream");
   assert.equal(compatibility.buzz.acp_field, "mcpServers");
   assert.equal(compatibility.buzz.desktop_per_agent_mcp_override, false);
   assert.match(compatibility.buzz.commit, /^[0-9a-f]{40}$/);
@@ -60,6 +78,7 @@ test("examples contain no live-looking ContextStream or Buzz secrets", async () 
     await read("README.md"),
     await read("buzz-acp.env.example"),
     await read("demo-script.md"),
+    await read("claude-settings.local.example.json"),
   ].join("\n");
   assert.doesNotMatch(files, /cs_(live|test)_[A-Za-z0-9]{16,}/);
   assert.doesNotMatch(files, /nsec1[023456789acdefghjklmnpqrstuvwxyz]{24,}/);

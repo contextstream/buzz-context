@@ -106,6 +106,13 @@ Buzz-specific behavior in [agent-instructions.md](agent-instructions.md).
 If the agent was created through a path that records its owner, omit the two
 allowlist variables and retain the launcher's `owner-only` default.
 
+The launcher deliberately exposes the binary through an executable named
+`contextstream`. Buzz currently derives the MCP server name from the command
+basename, and the canonical name produces the stable
+`mcp__contextstream__*` tool prefix expected by ContextStream guards and
+permission rules. Pointing Buzz straight at `contextstream-mcp` is not
+equivalent for guarded Claude Code sessions.
+
 ### 5. Start a second agent on the same project
 
 Use a distinct Buzz identity, but the same ContextStream project:
@@ -149,6 +156,29 @@ Use both systems' permission boundaries:
 The teaching layer is not an authorization layer. Server-enforced read-only
 access comes from the ContextStream workspace role attached to the credential.
 
+### Claude Code in a headless Buzz agent
+
+Buzz defaults to `BUZZ_ACP_PERMISSION_MODE=dont-ask`: operations that would
+need an interactive prompt are denied because Buzz has no permission dialog.
+That is a sound read-only default, but it does not make a coding agent
+read/write by itself.
+
+For a contained read/write project, merge
+[claude-settings.local.example.json](claude-settings.local.example.json) into
+`<project>/.claude/settings.local.json`, replace the placeholder path, review
+the project and Buzz CLI placeholder paths, review the command allowlist, and
+then set:
+
+```bash
+export BUZZ_ACP_PERMISSION_MODE=accept-edits
+```
+
+The example permits reads and edits only under the selected project, the
+standalone test/status commands used by the reference, direct Buzz replies,
+and canonical ContextStream tools. It explicitly denies common destructive
+shell and Git operations. Treat it as a starting policy, not a substitute for
+an OS/container sandbox.
+
 ## Headless and hosted agents
 
 `contextstream-mcp setup` is preferred on a developer machine. For a headless
@@ -176,6 +206,8 @@ binary execution. The compatibility record is in
 - [run-agent.sh](run-agent.sh) — safe launcher for Goose, Codex, and Claude
 - [agent-instructions.md](agent-instructions.md) — brief, preserve, handoff,
   and attribution behavior
+- [claude-settings.local.example.json](claude-settings.local.example.json) —
+  reviewed least-privilege starting policy for headless Claude read/write work
 - [smoke-contextstream.mjs](smoke-contextstream.mjs) — real stdio MCP and
   hosted-grounding smoke test
 - [demo-script.md](demo-script.md) — reproducible 60–90 second flagship demo

@@ -7,6 +7,9 @@
     "harness": "buzz-acp",
     "mcp_transport": "stdio",
     "configuration_env": "BUZZ_ACP_MCP_COMMAND",
+    "mcp_name_source": "command file stem",
+    "canonical_contextstream_server_name": "contextstream",
+    "current_name_compatibility": "run-agent.sh creates an executable alias named contextstream; a dedicated BUZZ_ACP_MCP_NAME override is proposed upstream",
     "acp_method": "session/new",
     "acp_field": "mcpServers",
     "supported_harnesses": [
@@ -15,7 +18,8 @@
       "claude-agent-acp"
     ],
     "desktop_per_agent_mcp_override": false,
-    "desktop_limitation": "Create/update requests accept mcpCommand only for wire compatibility; runtime catalog metadata determines the effective MCP command at spawn time."
+    "desktop_limitation": "Create/update requests accept mcpCommand only for wire compatibility; runtime catalog metadata determines the effective MCP command at spawn time.",
+    "claude_headless_default": "dontAsk denies operations that require an interactive permission prompt; read/write work needs an explicitly reviewed project allowlist plus acceptEdits"
   },
   "contextstream": {
     "command": "contextstream-mcp",

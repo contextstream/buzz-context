@@ -99,6 +99,33 @@ for required_command in contextstream-mcp buzz-acp "$AGENT_COMMAND"; do
   }
 done
 
+# Buzz derives the ACP MCP-server name from the command's file stem. The
+# canonical `contextstream` name matters because ContextStream-aware harness
+# guards and permission rules key on `mcp__contextstream__*`. Keep the installed
+# binary untouched and expose it through a private, executable cache alias.
+CONTEXTSTREAM_MCP_REAL="$(command -v contextstream-mcp)"
+CONTEXTSTREAM_BUZZ_CACHE_ROOT="${CONTEXTSTREAM_BUZZ_BIN_DIR:-${XDG_CACHE_HOME:-${HOME}/.cache}/contextstream/buzz/bin}"
+CONTEXTSTREAM_MCP_ALIAS="$CONTEXTSTREAM_BUZZ_CACHE_ROOT/contextstream"
+mkdir -p "$CONTEXTSTREAM_BUZZ_CACHE_ROOT"
+
+if [[ -e "$CONTEXTSTREAM_MCP_ALIAS" || -L "$CONTEXTSTREAM_MCP_ALIAS" ]]; then
+  if [[ ! -L "$CONTEXTSTREAM_MCP_ALIAS" ]]; then
+    printf 'Refusing to replace non-symlink MCP alias: %s\n' "$CONTEXTSTREAM_MCP_ALIAS" >&2
+    exit 1
+  fi
+  if [[ "$(readlink "$CONTEXTSTREAM_MCP_ALIAS")" != "$CONTEXTSTREAM_MCP_REAL" ]]; then
+    ln -sfn "$CONTEXTSTREAM_MCP_REAL" "$CONTEXTSTREAM_MCP_ALIAS"
+  fi
+else
+  ln -s "$CONTEXTSTREAM_MCP_REAL" "$CONTEXTSTREAM_MCP_ALIAS"
+fi
+
+if ! "$CONTEXTSTREAM_MCP_ALIAS" --version >/dev/null 2>&1; then
+  printf 'The canonical MCP alias is not executable: %s\n' "$CONTEXTSTREAM_MCP_ALIAS" >&2
+  printf 'Set CONTEXTSTREAM_BUZZ_BIN_DIR to a user-owned executable directory.\n' >&2
+  exit 1
+fi
+
 AUTH_JSON="$(contextstream-mcp verify-key --json)"
 if [[ "$AUTH_JSON" != *'"valid": true'* && "$AUTH_JSON" != *'"valid":true'* ]]; then
   printf 'ContextStream authentication is not valid. Run: contextstream-mcp setup\n' >&2
@@ -109,7 +136,7 @@ if [[ "$CHECK_ONLY" = "true" ]]; then
   printf 'ContextStream for Buzz check passed.\n'
   printf '  runtime: %s (%s)\n' "$RUNTIME" "$AGENT_COMMAND"
   printf '  project: %s\n' "$PROJECT_DIR"
-  printf '  MCP:     %s\n' "$(command -v contextstream-mcp)"
+  printf '  MCP:     %s -> %s\n' "$CONTEXTSTREAM_MCP_ALIAS" "$CONTEXTSTREAM_MCP_REAL"
   printf '  policy:  %s\n' "${BUZZ_ACP_RESPOND_TO:-owner-only}"
   exit 0
 fi
@@ -123,7 +150,10 @@ export BUZZ_RELAY_URL="${BUZZ_RELAY_URL:-ws://localhost:3000}"
 export BUZZ_ACP_RESPOND_TO="${BUZZ_ACP_RESPOND_TO:-owner-only}"
 export BUZZ_ACP_AGENT_COMMAND="$AGENT_COMMAND"
 export BUZZ_ACP_AGENT_ARGS="$AGENT_ARGS"
-export BUZZ_ACP_MCP_COMMAND="$(command -v contextstream-mcp)"
+export BUZZ_ACP_MCP_COMMAND="$CONTEXTSTREAM_MCP_ALIAS"
+# Harmless on the pinned Buzz commit and ready for the proposed upstream name
+# override. The executable alias above is what guarantees compatibility today.
+export BUZZ_ACP_MCP_NAME="${BUZZ_ACP_MCP_NAME:-contextstream}"
 
 cd "$PROJECT_DIR"
 exec buzz-acp --system-prompt-file "$INSTRUCTIONS_FILE" "${EXTRA_ARGS[@]}"
