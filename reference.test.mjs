@@ -53,6 +53,21 @@ test("compatibility record pins the contract that was actually tested", async ()
   assert.match(compatibility.buzz.commit, /^[0-9a-f]{40}$/);
 });
 
+test("runtime proof never conflates process startup with sourced retrieval", async () => {
+  const compatibility = JSON.parse(await read("compatibility.json"));
+  const ledger = await read("runtime-proof.md");
+  const matrix = compatibility.proof.runtime_matrix;
+
+  assert.equal(matrix.claude.sourced_contextstream_retrieval, "passed");
+  assert.equal(matrix.claude.signed_buzz_reply, "passed");
+  assert.equal(matrix.codex.cross_agent_continuation, "pending_explicit_human_approval");
+  assert.equal(matrix.goose.sourced_contextstream_retrieval, "not_yet_proven");
+  assert.equal(matrix.goose.signed_buzz_reply, "not_yet_proven");
+  assert.match(compatibility.proof.pass_standard, /signed Buzz reply/);
+  assert.match(ledger, /Process startup.*not retrieval proof/is);
+  assert.match(ledger, /open compatibility finding/i);
+});
+
 test("production and smoke clients remain separable for connector metrics", async () => {
   const teaching = await read("agent-instructions.md");
   const smoke = await read("smoke-contextstream.mjs");
@@ -89,6 +104,7 @@ test("examples contain no live-looking ContextStream or Buzz secrets", async () 
     await read("demo-script.md"),
     await read("claude-settings.local.example.json"),
     await read("community-runbook.md"),
+    await read("runtime-proof.md"),
   ].join("\n");
   assert.doesNotMatch(files, /cs_(live|test)_[A-Za-z0-9]{16,}/);
   assert.doesNotMatch(files, /nsec1[023456789acdefghjklmnpqrstuvwxyz]{24,}/);

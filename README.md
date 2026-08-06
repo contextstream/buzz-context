@@ -5,16 +5,16 @@ Give every agent in Buzz the same project context.
 [![Reference checks](https://github.com/contextstream/buzz-context/actions/workflows/test.yml/badge.svg)](https://github.com/contextstream/buzz-context/actions/workflows/test.yml)
 
 This reference package connects the `contextstream-mcp` stdio server to an
-agent launched by Buzz's `buzz-acp` harness. Claude Code, Codex, Goose, and any
-other conforming ACP agent can then retrieve the same approved ContextStream
-project knowledge before work, preserve durable decisions after human
-approval, and hand work to another agent without a manual rebrief.
+agent launched by Buzz's `buzz-acp` harness. Buzz can launch Claude Code,
+Codex, Goose, and other conforming ACP agents with the same ContextStream
+project. The [runtime proof ledger](runtime-proof.md) records which paths have
+actually completed sourced retrieval and a signed Buzz reply.
 
 > The room changed. The agent changed. The context didn't.
 
 ## What is verified today
 
-This package was checked on 2026-08-05 against
+This package was checked on 2026-08-06 against
 [`block/buzz@06b60e6`](https://github.com/block/buzz/commit/06b60e682d5dd78e6cdcb8e93fe96c7ec4391e2a).
 
 - `buzz-acp` accepts an optional stdio MCP command through
@@ -26,6 +26,14 @@ This package was checked on 2026-08-05 against
   through `claude-agent-acp`.
 - `contextstream-mcp` works as that stdio command and connects to the hosted
   ContextStream service after normal ContextStream setup.
+
+Contract support and end-to-end proof are intentionally separate. Claude has
+completed sourced ContextStream retrieval and a signed Buzz reply. Codex is
+running and waiting for the deliberately approval-gated continuation. Goose
+passes launcher and ACP startup checks, but its current ContextStream-backed
+prompt remains an open interoperability finding rather than a claimed pass.
+See [runtime-proof.md](runtime-proof.md) for versions, evidence, and the exact
+pass criterion.
 
 Buzz records collaboration inside a Buzz community. ContextStream carries
 durable project understanding across agents, sessions, tools, and workspaces.
@@ -219,6 +227,8 @@ binary execution. The compatibility record is in
   upstream contribution brief
 - [upstream-doc.md](upstream-doc.md) — PR-ready vendor-neutral Buzz docs copy
 - [compatibility.json](compatibility.json) — exact upstream contract verified
+- [runtime-proof.md](runtime-proof.md) — per-runtime evidence and honest pass
+  criteria
 - [measurement.md](measurement.md) — north-star and activation measurement
   contract, including smoke-traffic exclusion
 
