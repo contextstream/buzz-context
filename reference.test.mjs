@@ -103,6 +103,17 @@ test("community runbook requires a real public relay and operator evidence", asy
   assert.match(runbook, /tested backup and credential-rotation procedure/);
 });
 
+test("README keeps the ContextStream community optional", async () => {
+  const readme = await read("README.md");
+
+  assert.match(readme, /wss:\/\/your-buzz-community\.example/);
+  assert.match(
+    readme,
+    /does not require the ContextStream community or relay/,
+  );
+  assert.match(readme, /optional ContextStream demo and builders community/);
+});
+
 test("examples contain no live-looking ContextStream or Buzz secrets", async () => {
   const files = [
     await read("README.md"),
