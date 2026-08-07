@@ -1,0 +1,14 @@
+{
+  "name": "@contextstream/buzz-context",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Attach ContextStream project context to agents in any Buzz community",
+  "scripts": {
+    "test": "node --test test/repository.test.mjs",
+    "smoke": "node smoke-contextstream.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
