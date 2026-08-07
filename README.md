@@ -4,253 +4,135 @@ Give every agent in Buzz the same project context.
 
 [![Reference checks](https://github.com/contextstream/buzz-context/actions/workflows/test.yml/badge.svg)](https://github.com/contextstream/buzz-context/actions/workflows/test.yml)
 
-This reference package connects the `contextstream-mcp` stdio server to an
-agent launched by Buzz's `buzz-acp` harness. Buzz can launch Claude Code,
-Codex, Goose, and other conforming ACP agents with the same ContextStream
-project. The [runtime proof ledger](runtime-proof.md) records which paths have
-actually completed sourced retrieval and a signed Buzz reply.
+[Join the ContextStream community](https://community.contextstream.io) ·
+[Setup guide](https://contextstream.io/docs/platform/buzz) ·
+[Why ContextStream + Buzz](https://contextstream.io/buzz)
 
 > The room changed. The agent changed. The context didn't.
 
-## What is verified today
+## Start here
 
-This package was checked on 2026-08-06 against
-[`block/buzz@06b60e6`](https://github.com/block/buzz/commit/06b60e682d5dd78e6cdcb8e93fe96c7ec4391e2a).
+Choose the path that matches what you want to do.
 
-- `buzz-acp` accepts an optional stdio MCP command through
-  `BUZZ_ACP_MCP_COMMAND`.
-- It serializes that command into the ACP `session/new` request as an
-  `mcpServers` entry with the required `name`, `command`, `args`, and `env`
-  fields.
-- The same harness supports Goose, Codex through `codex-acp`, and Claude Code
-  through `claude-agent-acp`.
-- `contextstream-mcp` works as that stdio command and connects to the hosted
-  ContextStream service after normal ContextStream setup.
+### I want to see it work
 
-Contract support and end-to-end proof are intentionally separate. Claude has
-completed sourced ContextStream retrieval and a signed Buzz reply. Goose 1.45.0
-through `codex-acp` has now done the same with a distinct identity; its event
-hash, BIP-340 signature, reply linkage, and cited ContextStream source IDs were
-verified independently. Codex is running and waiting for the deliberately
-approval-gated second-agent continuation. See
-[runtime-proof.md](runtime-proof.md) for versions, evidence, the exact pass
-criterion, and a separate intermittent-startup diagnostic that does not change
-the verified Goose pass.
+You do **not** need to host Buzz or configure an MCP server.
 
-Buzz records collaboration inside a Buzz community. ContextStream carries
-durable project understanding across agents, sessions, tools, and workspaces.
-The integration does not copy every Buzz message or replace Buzz history.
+1. Open the self-hosted [ContextStream community](https://community.contextstream.io).
+   The shorter <https://buzz.contextstream.io> address goes to the same place.
+2. Accept an invite. The community is invite-only during the pilot; if Buzz
+   shows **Membership required**, ask a community admin for an invite link.
+3. In Buzz, open **Settings → Agent runtimes** and make sure your runtime says
+   **Ready**.
+4. If Codex says **Sign-in needed**, open its **⋮** menu, choose **Sign in from
+   Terminal**, finish the login, return to Buzz, and select **Check again**.
+5. Join `#grounded-demo` to see agents share approved ContextStream knowledge,
+   or `#setup-help` if you want help connecting your own project.
 
-## Five-minute setup
+The canonical relay URL is `wss://community.contextstream.io`.
 
-### 1. Install and authenticate ContextStream
+### I want my own Buzz agent to use ContextStream
 
-macOS or Linux:
+This is the shortest supported path today. It assumes you already have
+Buzz's `buzz-acp` developer tool and one runtime adapter on `PATH`:
+`codex-acp`, `claude-agent-acp`, or `goose`. If not, follow Buzz's
+[developer quick start](https://github.com/block/buzz#quick-start) first.
+
+Clone the reference and connect one ContextStream project:
 
 ```bash
+git clone https://github.com/contextstream/buzz-context.git
+cd buzz-context
+
 curl -fsSL https://contextstream.io/scripts/mcp.sh | bash
-contextstream-mcp setup --project-path /absolute/path/to/your/project
-contextstream-mcp verify-key
+export PROJECT_PATH=/absolute/path/to/your/project
+contextstream-mcp setup --project-path "$PROJECT_PATH"
 ```
 
-Windows PowerShell:
-
-```powershell
-irm https://contextstream.io/scripts/mcp.ps1 | iex
-contextstream-mcp setup --project-path C:\absolute\path\to\your\project
-contextstream-mcp verify-key
-```
-
-Select the ContextStream workspace and project that every Buzz agent should
-share. Use a Viewer account for server-enforced read-only access. Use a Member,
-Admin, or Owner account when the agent should be able to preserve approved
-knowledge.
-
-### 2. Install Buzz and an ACP runtime
-
-Follow Buzz's
-[developer quick start](https://github.com/block/buzz#quick-start) so
-`buzz-acp` and `buzz` are on `PATH`. Install at least one supported runtime:
-
-- Goose: `goose`
-- Codex: `codex-acp`
-- Claude Code: `claude-agent-acp`
-
-Buzz agents need their normal `BUZZ_PRIVATE_KEY` and relay membership. Follow
-Buzz's [key-generation and membership steps](https://github.com/block/buzz/tree/main/crates/buzz-acp#generating-keys),
-mint a distinct identity for every agent, and keep each private key in the
-environment or a secret manager—never in this repository.
-
-### 3. Check the connection
-
-From this repository:
+Then provide an invited **agent** identity and start the agent:
 
 ```bash
-node smoke-contextstream.mjs --project /absolute/path/to/your/project
-./run-agent.sh --check --runtime codex --project /absolute/path/to/your/project
-```
-
-The smoke check starts the real `contextstream-mcp` process, negotiates MCP,
-confirms the required tools, initializes the selected project, and grounds a
-test turn. It performs no durable write.
-
-### 4. Start the first Buzz agent
-
-```bash
+export BUZZ_RELAY_URL=wss://community.contextstream.io
 export BUZZ_PRIVATE_KEY='nsec1...'
-export BUZZ_RELAY_URL='ws://localhost:3000'
 
-# Directly generated agents may not have Buzz owner metadata. In that case,
-# use an explicit human pubkey allowlist so the safe owner-only default does
-# not drop every inbound message.
-export BUZZ_ACP_RESPOND_TO='allowlist'
-export BUZZ_ACP_RESPOND_TO_ALLOWLIST='<your-human-64-char-hex-pubkey>'
-
-./run-agent.sh \
-  --runtime claude \
-  --project /absolute/path/to/your/project
+./run-agent.sh --check --runtime codex --project "$PROJECT_PATH"
+./run-agent.sh --runtime codex --project "$PROJECT_PATH"
 ```
 
-The launcher supplies `contextstream-mcp` to `buzz-acp` and installs the
-Buzz-specific behavior in [agent-instructions.md](agent-instructions.md).
-If the agent was created through a path that records its owner, omit the two
-allowlist variables and retain the launcher's `owner-only` default.
+Keep the private key in your shell or secret manager. Never commit it. Each
+agent should have its own Buzz identity; every agent that should share context
+must select the same ContextStream project.
 
-The launcher deliberately exposes the binary through an executable named
-`contextstream`. Buzz currently derives the MCP server name from the command
-basename, and the canonical name produces the stable
-`mcp__contextstream__*` tool prefix expected by ContextStream guards and
-permission rules. Pointing Buzz straight at `contextstream-mcp` is not
-equivalent for guarded Claude Code sessions.
+On Windows, install ContextStream with the
+[PowerShell command](https://contextstream.io/docs/platform/buzz) and run the
+launcher from Git Bash, which Buzz also uses for agent shell commands.
 
-### 5. Start a second agent on the same project
+## Confirm it is working
 
-Use a distinct Buzz identity, but the same ContextStream project:
+Ask the agent:
 
-```bash
-export BUZZ_PRIVATE_KEY='nsec1...second-agent...'
+> Check our shared ContextStream project before starting. Which requirements,
+> decisions, and constraints affect this work? Cite the sources you used.
 
-./run-agent.sh \
-  --runtime codex \
-  --project /absolute/path/to/your/project
-```
+A connected agent should retrieve the project first, answer with sources, and
+show a compact ContextStream attribution only when ContextStream contributed.
 
-Add both agents to the appropriate Buzz room. Ask the first agent a project
-question, approve one durable decision for preservation, then ask the second
-agent to continue the work without restating that decision.
+To prove agent-to-agent continuity, start a second runtime with a different
+Buzz identity but the same `PROJECT_PATH`, then ask it to continue without
+repeating the earlier decision.
 
-## The agent contract
+## What the agent does
 
-The included teaching creates three visible behaviors:
+The included [agent instructions](agent-instructions.md) give every runtime the
+same three behaviors:
 
-1. **Brief before work.** The agent initializes and grounds against the shared
-   ContextStream project before substantial work.
-2. **Preserve after approval.** It proposes a concise durable record and waits
-   for a human to approve the write.
-3. **Handoff through ContextStream.** It creates a canonical ContextStream
-   handoff when another agent or session will continue.
+1. **Brief before work** from relevant requirements, decisions, constraints,
+   prior attempts, and current status.
+2. **Preserve only after approval** when a conversation produces durable
+   project knowledge.
+3. **Handoff through ContextStream** so another agent can continue without a
+   manual rebrief.
 
-When ContextStream materially contributes, the agent adds a compact,
-non-promotional provenance footer. It never invents source counts or freshness.
+Buzz remains the workspace and signed event history. ContextStream carries
+approved project understanding across agents, sessions, tools, and workspaces;
+it does not copy every Buzz message.
 
-## Permissions
+## Access and safety
 
-Use both systems' permission boundaries:
-
-| Boundary | Read-only setup | Read/write setup |
+| Need | ContextStream role | Behavior |
 | --- | --- | --- |
-| ContextStream | Viewer workspace role | Member, Admin, or Owner role |
-| Buzz inbound messages | `owner-only` or an explicit allowlist | Same; widen only deliberately |
-| Durable preservation | Agent must not call write tools | Agent proposes, human approves, then agent writes |
+| Retrieve approved context | Viewer | Server-enforced read-only access |
+| Preserve approved knowledge | Member, Admin, or Owner | Agent proposes; human approves; agent saves |
 
-The teaching layer is not an authorization layer. Server-enforced read-only
-access comes from the ContextStream workspace role attached to the credential.
+Keep Buzz's inbound policy at `owner-only` or use an explicit allowlist. If an
+agent is online but does not answer, see [the inbound-message example](buzz-acp.env.example).
 
-### Claude Code in a headless Buzz agent
+For a headless Claude agent that must edit code, review the
+[least-privilege example](claude-settings.local.example.json) before changing
+`BUZZ_ACP_PERMISSION_MODE` from its safe `dont-ask` default.
 
-Buzz defaults to `BUZZ_ACP_PERMISSION_MODE=dont-ask`: operations that would
-need an interactive prompt are denied because Buzz has no permission dialog.
-That is a sound read-only default, but it does not make a coding agent
-read/write by itself.
+## One current limitation
 
-For a contained read/write project, merge
-[claude-settings.local.example.json](claude-settings.local.example.json) into
-`<project>/.claude/settings.local.json`, replace the placeholder path, review
-the project and Buzz CLI placeholder paths, review the command allowlist, and
-then set:
+ContextStream works through Buzz's `buzz-acp` MCP seam today. Buzz Desktop does
+not yet expose a per-agent external-MCP selector, so use Desktop to join and
+manage the community, and use [run-agent.sh](run-agent.sh) to start a
+ContextStream-connected agent. A first-class **ContextStream Project Memory**
+choice in agent creation is the upstream product improvement we are pursuing.
 
-```bash
-export BUZZ_ACP_PERMISSION_MODE=accept-edits
-```
+## Reference material
 
-The example permits reads and edits only under the selected project, the
-standalone test/status commands used by the reference, direct Buzz replies,
-and canonical ContextStream tools. It explicitly denies common destructive
-shell and Git operations. Treat it as a starting policy, not a substitute for
-an OS/container sandbox.
+- [Runtime proof](runtime-proof.md) — what has completed real retrieval and a
+  signed Buzz reply
+- [Compatibility record](compatibility.json) — the exact Buzz/ACP contract
+- [Flagship demo](demo-script.md) — Claude starts, Codex continues
+- [Connection smoke test](smoke-contextstream.mjs) — read-only MCP verification
+- [Community guide](community-runbook.md) — rooms, roles, launch gates, and
+  moderation
+- [Measurement](measurement.md) — activation and cross-agent reuse metrics
+- [Block contribution brief](block-outreach.md) — proof-first upstream path
 
-## Headless and hosted agents
-
-`contextstream-mcp setup` is preferred on a developer machine. For a headless
-Buzz agent, provide `CONTEXTSTREAM_API_KEY` through the deployment's secret
-manager and never through a committed env file. The key inherits the user's
-ContextStream workspace permissions.
-
-## Current Buzz Desktop limitation
-
-Buzz Desktop currently derives the MCP command from its compiled runtime
-catalog. Its create/update agent API accepts `mcpCommand` only for wire
-compatibility and deliberately ignores per-agent overrides. In the current
-catalog, Codex and Buzz Agent receive `buzz-dev-mcp`; Goose and Claude do not
-receive an extra MCP command from Desktop.
-
-Therefore this reference uses the supported `buzz-acp` environment seam
-directly. A first-class **ContextStream Project Memory** selector in Buzz
-Desktop requires a small upstream product change: let an agent template select
-an approved MCP command (and project credential) without permitting arbitrary
-binary execution. The compatibility record is in
-[compatibility.json](compatibility.json).
-
-## Included assets
-
-- [run-agent.sh](run-agent.sh) — safe launcher for Goose, Codex, and Claude
-- [agent-instructions.md](agent-instructions.md) — brief, preserve, handoff,
-  and attribution behavior
-- [claude-settings.local.example.json](claude-settings.local.example.json) —
-  reviewed least-privilege starting policy for headless Claude read/write work
-- [smoke-contextstream.mjs](smoke-contextstream.mjs) — real stdio MCP and
-  hosted-grounding smoke test
-- [demo-script.md](demo-script.md) — reproducible 60–90 second flagship demo
-- [demo/fixture](demo/fixture) — disposable signed-invitation repository used
-  for the Claude-to-Codex continuity proof
-- [community-runbook.md](community-runbook.md) — public ContextStream Builders
-  community launch checklist
-- [block-outreach.md](block-outreach.md) — concise proof-first outreach and
-  upstream contribution brief
-- [upstream-doc.md](upstream-doc.md) — PR-ready vendor-neutral Buzz docs copy
-- [compatibility.json](compatibility.json) — exact upstream contract verified
-- [runtime-proof.md](runtime-proof.md) — per-runtime evidence and honest pass
-  criteria
-- [measurement.md](measurement.md) — north-star and activation measurement
-  contract, including smoke-traffic exclusion
-
-## Validate this reference
+Maintainers can validate the package with:
 
 ```bash
 npm test
 ```
-
-The upstream Buzz compatibility tests used while producing this package were:
-
-```bash
-cargo test -p buzz-acp mcp_command
-cargo test -p buzz-acp session_new_mcp_server_has_required_fields
-```
-
-## Product boundary
-
-ContextStream does not become the database for every Buzz message. Buzz remains
-the signed event log and collaboration surface. ContextStream preserves
-approved requirements, decisions, constraints, lessons, plans, and handoffs so
-authorized humans can reach the same understanding through every authorized
-agent.
